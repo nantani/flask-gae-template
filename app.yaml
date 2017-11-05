@@ -3,4 +3,13 @@ env: flex
 entrypoint: gunicorn -b :$PORT main:app
 
 runtime_config:
-  python_version: 3
+  python_version: 3.6.2
+
+resources:
+  cpu: 1
+  memory_gb: 0.6
+  disk_size_gb: 10
+
+manual_scaling:
+  instances: 1 # Need to confirm
+

@@ -12,31 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START app]
-import logging
+# coding: utf-8
+import os
 
-from flask import Flask
+from google.auth import app_engine
 
-
-app = Flask(__name__)
-
-@app.route('/prediction/')
-def hello():
-    """Return a friendly HTTP greeting."""
-    return 'Hello World!'
+import mlapi
 
 
-@app.errorhandler(500)
-def server_error(e):
-    logging.exception('An error occurred during a request.')
-    return """
-    An internal error occurred: <pre>{}</pre>
-    See logs for full stacktrace.
-    """.format(e), 500
+def _get_env():  # type: () -> str
+    try:
+        project_id = app_engine.get_project_id()
+    except EnvironmentError:
+        return os.getenv('MLAPI_ENV', 'development')
+
+    env = {
+        'ubie-staging': 'staging',
+        'ubie-production': 'production',
+    }
+    return env[project_id]
+
+
+app = mlapi.create_app(_get_env())
 
 
 if __name__ == '__main__':
     # This is used when running locally. Gunicorn is used to run the
     # application on Google App Engine. See entrypoint in app.yaml.
     app.run(host='127.0.0.1', port=8080, debug=True)
-# [END app]
+
